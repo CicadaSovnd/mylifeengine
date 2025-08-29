@@ -1,0 +1,14 @@
+[
+    {
+        "name": "The Glider",
+        "file": "the_glider.json"
+    },
+    {
+        "name": "The Plant",
+        "file": "the_plant.json"
+    },
+    {
+        "name": "The Bug",
+        "file": "the_bug.json"
+    }
+]

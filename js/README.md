@@ -1,0 +1,1 @@
+This directory contains the compiled JavaScript bundle for the application.

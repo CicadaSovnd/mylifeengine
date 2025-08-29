@@ -32,8 +32,13 @@ const Hyperparams = {
     },
 
     loadJsonObj(obj) {
-        for (let key in obj) {
-            this[key] = obj[key];
+        for (const key in obj) {
+            // Only apply properties that exist in the default configuration.
+            // This is a defensive practice to prevent malformed or malicious JSON
+            // from adding unexpected properties to the global state.
+            if (Object.prototype.hasOwnProperty.call(this, key)) {
+                this[key] = obj[key];
+            }
         }
     }
 }

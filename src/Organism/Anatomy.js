@@ -1,5 +1,6 @@
 const CellStates = require("./Cell/CellStates");
 const BodyCellFactory = require("./Cell/BodyCells/BodyCellFactory");
+const Neighbors = require("../Grid/Neighbors");
 const SerializeHelper = require("../Utils/SerializeHelper");
 
 class Anatomy {
@@ -59,24 +60,18 @@ class Anatomy {
     removeCell(c, r, allow_center_removal=false) {
         if (c == 0 && r == 0 && !allow_center_removal)
             return false;
-        for (var i=0; i<this.cells.length; i++) {
-            var cell = this.cells[i];
-            if (cell.loc_col == c && cell.loc_row == r){
-                this.cells.splice(i, 1);
-                break;
-            }
+
+        const cellIndex = this.cells.findIndex(cell => cell.loc_col === c && cell.loc_row === r);
+        if (cellIndex > -1) {
+            this.cells.splice(cellIndex, 1);
         }
+
         this.checkTypeChange();
         return true;
     }
 
     getLocalCell(c, r) {
-        for (var cell of this.cells) {
-            if (cell.loc_col == c && cell.loc_row == r){
-                return cell;
-            }
-        }
-        return null;
+        return this.cells.find(cell => cell.loc_col === c && cell.loc_row === r) || null;
     }
 
     checkTypeChange() {
@@ -98,30 +93,22 @@ class Anatomy {
     }
 
     getNeighborsOfCell(col, row) {
-        var neighbors = [];
-        for (var x = -1; x <= 1; x++) {
-            for (var y = -1; y <= 1; y++) {
-
-                var neighbor = this.getLocalCell(col + x, row + y);
-                if (neighbor)
-                    neighbors.push(neighbor)
-            }
-        }
-
-        return neighbors;
+        return Neighbors.all
+            .map(([dx, dy]) => this.getLocalCell(col + dx, row + dy))
+            .filter(neighbor => neighbor !== null);
     }
 
     isEqual(anatomy) { // currently unused helper func. inefficient, avoid usage in prod.
-        if (this.cells.length !== anatomy.cells.length) return false;
-        for (let i in this.cells) {
-            let my_cell = this.cells[i];
-            let their_cell = anatomy.cells[i];
-            if (my_cell.loc_col !== their_cell.loc_col ||
-                my_cell.loc_row !== their_cell.loc_row ||
-                my_cell.state !== their_cell.state)
-                return false;
+        if (this.cells.length !== anatomy.cells.length) {
+            return false;
         }
-        return true;
+        // Use .every() for a more robust and declarative comparison.
+        return this.cells.every((myCell, i) => {
+            const theirCell = anatomy.cells[i];
+            return myCell.loc_col === theirCell.loc_col &&
+                   myCell.loc_row === theirCell.loc_row &&
+                   myCell.state === theirCell.state;
+        });
     }
 
     serialize() {

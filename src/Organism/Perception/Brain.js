@@ -19,11 +19,10 @@ class Brain {
         this.owner = owner;
         this.observations = [];
 
-        // corresponds to CellTypes
-        this.decisions = {};
-        for (let cell of CellStates.all) {
-            this.decisions[cell.name] = Decision.neutral;
-        }
+        // Initialize all cell type decisions to neutral
+        this.decisions = Object.fromEntries(
+            CellStates.all.map(cell => [cell.name, Decision.neutral])
+        );
         this.decisions[CellStates.food.name] = Decision.chase;
         this.decisions[CellStates.killer.name] = Decision.retreat;
     }
